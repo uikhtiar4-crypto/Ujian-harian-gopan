@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UJIAN MALAM GOPAN</title>
+<style>
+:root{--bg:#f3f6fb;--card:#fff;--ink:#172033;--muted:#687386;--primary:#124e78;--accent:#f0b429;--line:#dce4ee;--good:#18794e;--bad:#b42318}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:linear-gradient(135deg,#0d3557,#176b87);color:white;padding:26px 16px;text-align:center}
+header h1{margin:0;font-size:clamp(1.35rem,5vw,2.1rem);letter-spacing:.03em}header p{margin:7px 0 0;color:#d9edf7}
+main{width:min(920px,100%);margin:20px auto;padding:0 14px 32px}.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:clamp(16px,4vw,28px);box-shadow:0 8px 24px #1b35500d;margin-bottom:16px}
+h2{margin:0 0 12px;font-size:1.35rem}h3{margin:18px 0 8px}.muted{color:var(--muted)}label{display:block;font-weight:650;margin:14px 0 6px}input[type=text]{width:100%;padding:13px;border:1px solid #b9c7d8;border-radius:10px;font:inherit}
+button{border:0;border-radius:11px;padding:12px 17px;font:inherit;font-weight:700;cursor:pointer;background:var(--primary);color:#fff}button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#e8eef5;color:#20364b}.warn{background:#a33b2e}.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;margin-top:20px}.actions .right{display:flex;gap:10px;margin-left:auto}
+.subjects{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}.subject{padding:14px;border:1px solid var(--line);border-radius:12px;background:#fbfdff}.subject b{display:block}.pill{display:inline-block;border-radius:99px;background:#e7f2f8;color:#124e78;padding:4px 10px;font-size:.85rem;font-weight:700}
+.topline{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.progress{height:8px;background:#e8edf3;border-radius:99px;overflow:hidden;margin:14px 0}.progress div{height:100%;background:var(--accent);width:0;transition:width .2s}
+.question{font-size:1.1rem;font-weight:700;margin:18px 0}.options{display:grid;gap:10px}.option{display:flex;gap:11px;align-items:flex-start;padding:13px;border:1px solid var(--line);border-radius:12px;cursor:pointer}.option:has(input:checked){border-color:var(--primary);background:#eef7fc}.option input{margin-top:5px;accent-color:var(--primary);transform:scale(1.15)}
+.gridnums{display:flex;gap:7px;flex-wrap:wrap;margin-top:15px}.num{width:38px;height:38px;padding:0;background:#e9eef4;color:#26384c;border:1px solid #d5deea}.num.done{background:#dff4e8;border-color:#83c9a4}.num.current{outline:3px solid var(--accent)}
+.scorecards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.score{background:#f7fafc;border:1px solid var(--line);padding:14px;border-radius:12px}.score strong{display:block;font-size:1.65rem;color:var(--primary)}
+.review{border-top:1px solid var(--line);padding:14px 0}.review p{margin:5px 0}.correct{color:var(--good);font-weight:700}.incorrect{color:var(--bad);font-weight:700}
+.hidden{display:none!important}.notice{background:#fff7dc;border:1px solid #f2d37d;padding:12px;border-radius:10px}.footer{text-align:center;color:var(--muted);font-size:.85rem;padding:8px}
+@media(max-width:600px){.subjects,.scorecards{grid-template-columns:1fr}.actions{flex-direction:column}.actions button{width:100%}.actions .right{margin:0;display:grid;grid-template-columns:1fr 1fr}.topline{align-items:flex-start}.num{width:36px;height:36px}}
+</style>
+</head>
+<body>
+<header><h1>UJIAN MALAM GOPAN</h1><p>Latihan ujian kelas 4 SD • IPAS • Matematika • Bahasa Indonesia</p></header>
+<main>
+<section id="start" class="panel">
+<h2>Selamat datang, peserta ujian!</h2>
+<p class="muted">Isi nama, lalu tekan mulai. Jawablah 60 soal dengan teliti. Setiap soal bernilai sama.</p>
+<label for="student">Nama peserta</label><input id="student" type="text" maxlength="60" placeholder="Tulis nama peserta..." autocomplete="name">
+<div class="subjects">
+<div class="subject"><b>IPAS</b><span class="muted">20 soal</span></div>
+<div class="subject"><b>Matematika</b><span class="muted">20 soal</span></div>
+<div class="subject"><b>Bahasa Indonesia</b><span class="muted">20 soal</span></div>
+</div>
+<div class="notice">Tips: pilih satu jawaban untuk setiap soal. Kamu bisa berpindah soal dan mengubah jawaban sebelum menekan tombol selesai.</div>
+<div class="actions"><button id="startBtn">Mulai Ujian</button></div>
+</section>
+<section id="exam" class="panel hidden">
+<div class="topline"><span id="subjectTag" class="pill">IPAS</span><span id="count" class="muted">Soal 1 dari 60</span></div>
+<div class="progress"><div id="progressBar"></div></div>
+<div id="question" class="question"></div>
+<div id="options" class="options"></div>
+<h3>Navigasi soal</h3><p class="muted">Hijau = sudah dijawab. Tekan nomor untuk berpindah soal.</p>
+<div id="numbers" class="gridnums"></div>
+<div class="actions"><button id="prevBtn" class="secondary">← Sebelumnya</button><div class="right"><button id="nextBtn">Berikutnya →</button><button id="finishBtn" class="warn">Selesai</button></div></div>
+</section>
+<section id="result" class="panel hidden">
+<h2>Hasil Ujian</h2><p id="greeting" class="muted"></p>
+<div class="scorecards" id="scorecards"></div>
+<div class="panel" style="margin-top:16px;background:#f7fafc"><span class="muted">Nilai keseluruhan</span><div id="totalScore" style="font-size:2.4rem;font-weight:800;color:#124e78">0</div><p id="summaryText"></p></div>
+<div class="actions"><button id="reviewBtn">Lihat Kunci & Pembahasan</button><button id="retryBtn" class="secondary">Ulangi Ujian</button></div>
+</section>
+<section id="review" class="panel hidden"><h2>Kunci Jawaban dan Pembahasan</h2><p class="muted">Jawaban peserta dibandingkan dengan jawaban yang benar.</p><div id="reviewContent"></div><div class="actions"><button id="backResultBtn" class="secondary">Kembali ke Hasil</button></div></section>
+<div class="footer">UJIAN MALAM GOPAN • Semangat belajar!</div>
+</main>
+<script>
+const questions = [
+{subject:"IPAS",q:"Bagian tumbuhan yang paling utama menyerap air dari tanah adalah ...",o:["Daun","Akar","Bunga","Buah"],a:1,e:"Akar menyerap air dan mineral dari tanah."},
+{subject:"IPAS",q:"Bagian tumbuhan yang biasanya menjadi tempat fotosintesis adalah ...",o:["Daun","Akar","Biji","Kulit buah"],a:0,e:"Daun mengandung klorofil yang membantu fotosintesis."},
+{subject:"IPAS",q:"Hewan yang memakan tumbuhan disebut ...",o:["Karnivor","Herbivor","Omnivor","Pengurai"],a:1,e:"Herbivor adalah hewan pemakan tumbuhan."},
+{subject:"IPAS",q:"Contoh hewan omnivor adalah ...",o:["Sapi","Harimau","Ayam","Kambing"],a:2,e:"Ayam dapat memakan biji-bijian maupun hewan kecil."},
+{subject:"IPAS",q:"Sumber energi utama bagi Bumi adalah ...",o:["Bulan","Matahari","Batu","Angin malam"],a:1,e:"Matahari memberi cahaya dan panas bagi Bumi."},
+{subject:"IPAS",q:"Perubahan air menjadi uap karena panas disebut ...",o:["Membeku","Menguap","Mengembun","Mencair"],a:1,e:"Menguap adalah perubahan wujud cair menjadi gas."},
+{subject:"IPAS",q:"Air yang berubah menjadi titik-titik air pada permukaan dingin mengalami ...",o:["Penguapan","Pembekuan","Pengembunan","Pencairan"],a:2,e:"Pengembunan mengubah gas menjadi cair."},
+{subject:"IPAS",q:"Benda yang dapat ditarik magnet adalah ...",o:["Paku besi","Kertas","Penghapus","Gelas plastik"],a:0,e:"Besi termasuk bahan yang dapat ditarik magnet."},
+{subject:"IPAS",q:"Gaya dapat menyebabkan benda ...",o:["Berubah gerak atau bentuk","Selalu hilang","Berubah menjadi air","Tidak pernah bergerak"],a:0,e:"Gaya dapat mengubah gerak, arah, atau bentuk benda."},
+{subject:"IPAS",q:"Contoh sumber energi listrik di rumah adalah ...",o:["Baterai","Batu bata","Pasir","Kain"],a:0,e:"Baterai menyimpan energi kimia yang dapat menghasilkan energi listrik."},
+{subject:"IPAS",q:"Organ tubuh yang digunakan untuk bernapas adalah ...",o:["Paru-paru","Lambung","Tulang","Kulit kepala"],a:0,e:"Paru-paru merupakan organ utama pernapasan manusia."},
+{subject:"IPAS",q:"Makanan bergizi seimbang sebaiknya terdiri dari ...",o:["Permen saja","Nasi saja","Beragam zat gizi","Minuman manis saja"],a:2,e:"Tubuh memerlukan karbohidrat, protein, lemak, vitamin, mineral, dan air."},
+{subject:"IPAS",q:"Contoh menjaga kebersihan lingkungan adalah ...",o:["Membuang sampah ke sungai","Memilah dan membuang sampah pada tempatnya","Membakar semua sampah sembarangan","Membiarkan selokan tersumbat"],a:1,e:"Sampah yang dikelola dengan benar membantu menjaga lingkungan."},
+{subject:"IPAS",q:"Benda cair memiliki sifat ...",o:["Bentuk tetap","Mengikuti bentuk wadah","Selalu keras","Tidak memiliki volume"],a:1,e:"Bentuk benda cair mengikuti wadahnya, tetapi volumenya tetap."},
+{subject:"IPAS",q:"Benda padat yang berubah menjadi cair disebut mengalami ...",o:["Mencair","Membeku","Menguap","Mengembun"],a:0,e:"Mencair adalah perubahan wujud padat menjadi cair."},
+{subject:"IPAS",q:"Contoh sumber daya alam yang dapat diperbarui adalah ...",o:["Minyak bumi","Batu bara","Tumbuhan","Gas alam"],a:2,e:"Tumbuhan dapat tumbuh kembali jika dirawat dan dikelola dengan baik."},
+{subject:"IPAS",q:"Arah matahari terbit adalah dari ...",o:["Barat","Timur","Utara","Selatan"],a:1,e:"Matahari tampak terbit dari arah timur."},
+{subject:"IPAS",q:"Alat untuk mengukur suhu adalah ...",o:["Penggaris","Termometer","Kompas","Timbangan"],a:1,e:"Termometer digunakan untuk mengukur suhu."},
+{subject:"IPAS",q:"Hubungan makan dan dimakan ant makhluk hidup disebut ...",o:["Rantai makanan","Daur air","Gaya magnet","Siklus batu"],a:0,e:"Rantai makanan menunjukkan perpindahan energi melalui proses makan dan dimakan."},
+{subject:"IPAS",q:"Salah satu cara menghemat air adalah ...",o:["Membiarkan keran terbuka","Mandi selama mungkin","Menutup keran setelah digunakan","Mencuci satu benda dengan air mengalir terus"],a:2,e:"Menutup keran saat tidak digunakan mengurangi pemborosan air."},
+{subject:"Matematika",q:"Hasil dari 245 + 137 adalah ...",o:["372","382","392","402"],a:1,e:"245 + 137 = 382."},
+{subject:"Matematika",q:"Hasil dari 600 − 275 adalah ...",o:["325","335","375","425"],a:0,e:"600 − 275 = 325."},
+{subject:"Matematika",q:"Hasil dari 24 × 3 adalah ...",o:["62","68","72","82"],a:2,e:"24 × 3 = 72."},
+{subject:"Matematika",q:"Hasil dari 84 ÷ 7 adalah ...",o:["10","11","12","14"],a:2,e:"84 ÷ 7 = 12."},
+{subject:"Matematika",q:"Angka 6 pada bilangan 3.682 menempati nilai tempat ...",o:["Satuan","Puluhan","Ratusan","Ribuan"],a:2,e:"Pada 3.682, angka 6 bernilai 600 atau ratusan."},
+{subject:"Matematika",q:"Bilangan terbesar di antara pilihan berikut adalah ...",o:["4.205","4.520","4.250","4.502"],a:1,e:"4.520 adalah bilangan terbesar."},
+{subject:"Matematika",q:"Setengah dari 18 adalah ...",o:["6","8","9","12"],a:2,e:"18 ÷ 2 = 9."},
+{subject:"Matematika",q:"Pecahan yang menunjukkan satu dari empat bagian sama besar adalah ...",o:["1/2","1/3","1/4","4/1"],a:2,e:"Satu dari empat bagian sama besar ditulis 1/4."},
+{subject:"Matematika",q:"2 meter sama dengan ... sentimeter.",o:["20","200","2.000","2000.000"],a:1,e:"1 meter = 100 sentimeter, jadi 2 meter = 200 sentimeter."},
+{subject:"Matematika",q:"Satu jam sama dengan ... menit.",o:["30","45","60","100"],a:2,e:"1 jam = 60 menit."},
+{subject:"Matematika",q:"Keliling persegi dengan sisi 5 cm adalah ...",o:["10 cm","15 cm","20 cm","25 cm"],a:2,e:"Keliling persegi = 4 × sisi = 4 × 5 = 20 cm."},
+{subject:"Matematika",q:"Luas persegi panjang dengan panjang 8 cm dan lebar 3 cm adalah ...",o:["11 cm²","22 cm²","24 cm²","30 cm²"],a:2,e:"Luas persegi panjang = panjang × lebar = 8 × 3 = 24 cm²."},
+{subject:"Matematika",q:"Segitiga memiliki ... sisi.",o:["2","3","4","5"],a:1,e:"Segitiga memiliki tiga sisi."},
+{subject:"Matematika",q:"Pola bilangan 5, 10, 15, 20, ... dilanjutkan dengan ...",o:["21","24","25","30"],a:2,e:"Pola bertambah 5, jadi setelah 20 adalah 25."},
+{subject:"Matematika",q:"Ibu membeli 3 kantong apel. Setiap kantong berisi 6 apel. Jumlah apel adalah ...",o:["9","18","21","36"],a:1,e:"3 × 6 = 18 apel."},
+{subject:"Matematika",q:"Rina memiliki Rp10.000 lalu membeli pensil seharga Rp3.500. Uangnya tersisa ...",o:["Rp5.500","Rp6.000","Rp6.500","Rp7.500"],a:2,e:"Rp10.000 − Rp3.500 = Rp6.500."},
+{subject:"Matematika",q:"Bentuk pecahan dari 3 bagian yang diarsir dari 8 bagian sama besar adalah ...",o:["3/8","8/3","3/5","5/8"],a:0,e:"Bagian diarsir menjadi pembilang (3), seluruh bagian menjadi penyebut (8)."},
+{subject:"Matematika",q:"Bilangan genap berikut adalah ...",o:["13","17","21","28"],a:3,e:"Bilangan genap habis dibagi 2; 28 adalah bilangan genap."},
+{subject:"Matematika",q:"Hasil dari 7 × 8 adalah ...",o:["48","54","56","64"],a:2,e:"7 × 8 = 56."},
+{subject:"Matematika",q:"Data jumlah buku: Ani 4, Budi 7, Cici 5. Siapa yang memiliki buku paling banyak?",o:["Ani","Budi","Cici","Sama semua"],a:1,e:"Budi memiliki 7 buku, jumlah terbanyak."},
+{subject:"Bahasa Indonesia",q:"Kalimat yang menggunakan huruf kapital dengan benar adalah ...",o:["aku tinggal di lampung.","Aku tinggal di Lampung.","aku Tinggal di Lampung.","Aku tinggal di lampung."],a:1,e:"Huruf awal kalimat dan nama tempat menggunakan huruf kapital."},
+{subject:"Bahasa Indonesia",q:"Tanda baca yang tepat di akhir kalimat berita adalah ...",o:["Tanda titik (.)","Tanda tanya (?)","Tanda seru (!) selalu","Tanda koma (,)"],a:0,e:"Kalimat berita biasanya diakhiri tanda titik."},
+{subject:"Bahasa Indonesia",q:"Lawan kata dari 'rajin' adalah ...",o:["Tekun","Giat","Malas","Cermat"],a:2,e:"Malas merupakan antonim atau lawan kata rajin."},
+{subject:"Bahasa Indonesia",q:"Persamaan kata 'indah' adalah ...",o:["Elok","Buruk","Kotor","Gelap"],a:0,e:"Elok memiliki arti yang mirip dengan indah."},
+{subject:"Bahasa Indonesia",q:"Kalimat tanya yang tepat adalah ...",o:["Tolong tutup pintu.","Wah, bagus sekali!","Di mana kamu tinggal?","Saya pergi ke sekolah."],a:2,e:"Kalimat tanya meminta informasi dan diakhiri tanda tanya."},
+{subject:"Bahasa Indonesia",q:"Kata yang menunjukkan kegiatan adalah ...",o:["Meja","Berlari","Merah","Tinggi"],a:1,e:"Berlari adalah kata kerja yang menyatakan kegiatan."},
+{subject:"Bahasa Indonesia",q:"Susunan kata yang benar adalah ...",o:["Sekolah pergi saya ke","Saya pergi ke sekolah","Ke saya sekolah pergi","Pergi sekolah ke saya"],a:1,e:"Susunan tersebut membentuk kalimat yang benar."},
+{subject:"Bahasa Indonesia",q:"Kalimat ajakan biasanya menggunakan kata ...",o:["Jangan pernah","Ayo","Mengapa","Siapa"],a:1,e:"Kata 'ayo' dapat digunakan untuk mengajak."},
+{subject:"Bahasa Indonesia",q:"Bacalah: 'Dina menyiram bunga setiap pagi.' Siapa yang menyiram bunga?",o:["Bunga","Pagi","Dina","Ibu"],a:2,e:"Subjek yang menyiram bunga adalah Dina."},
+{subject:"Bahasa Indonesia",q:"Berdasarkan kalimat 'Dina menyiram bunga setiap pagi', kapan Dina menyiram bunga?",o:["Setiap malam","Setiap pagi","Setiap siang","Setiap minggu"],a:1,e:"Informasi waktu pada kalimat adalah setiap pagi."},
+{subject:"Bahasa Indonesia",q:"Kata baku yang benar adalah ...",o:["Apotik","Apotek","Apoték","Apotick"],a:1,e:"Bentuk baku dalam bahasa Indonesia adalah apotek."},
+{subject:"Bahasa Indonesia",q:"Penulisan kata depan yang benar terdapat pada kalimat ...",o:["Buku itu diatas meja.","Buku itu di atas meja.","Buku itu diatas-meja.","Buku itu di Atas meja."],a:1,e:"Kata depan 'di' yang menunjukkan tempat ditulis terpisah."},
+{subject:"Bahasa Indonesia",q:"Kalimat perintah yang santun adalah ...",o:["Ambilkan buku itu sekarang!","Tolong ambilkan buku itu, ya.","Kamu harus diam!","Cepat sana!"],a:1,e:"Kata 'tolong' membuat permintaan terdengar lebih santun."},
+{subject:"Bahasa Indonesia",q:"Gagasan utama paragraf adalah ...",o:["Ide pokok yang dibahas","Nama penulis saja","Kalimat paling panjang","Tanda baca"],a:0,e:"Gagasan utama merupakan ide pokok pembahasan paragraf."},
+{subject:"Bahasa Indonesia",q:"Pantun umumnya terdiri dari ... baris dalam satu bait.",o:["2","3","4","6"],a:2,e:"Pantun biasanya terdiri atas empat baris dalam satu bait."},
+{subject:"Bahasa Indonesia",q:"Baris pertama dan kedua pantun disebut ...",o:["Isi","Sampiran","Judul","Amanat"],a:1,e:"Dua baris pertama pantun disebut sampiran."},
+{subject:"Bahasa Indonesia",q:"Pesan yang ingin disampaikan dalam cerita disebut ...",o:["Tokoh","Latar","Amanat","Alur saja"],a:2,e:"Amanat adalah pesan atau pelajaran dari cerita."},
+{subject:"Bahasa Indonesia",q:"Orang atau pelaku dalam cerita disebut ...",o:["Tokoh","Latar","Tema","Paragraf"],a:0,e:"Tokoh adalah pelaku yang ada dalam cerita."},
+{subject:"Bahasa Indonesia",q:"Kalimat yang menggunakan tanda tanya dengan tepat adalah ...",o:["Siapa nama gurumu?","Siapa nama gurumu.","Siapa nama gurumu!","Siapa, nama gurumu."],a:0,e:"Kalimat tanya diakhiri tanda tanya."},
+{subject:"Bahasa Indonesia",q:"Bacalah: 'Hujan turun deras. Siti membawa payung agar tidak basah.' Mengapa Siti membawa payung?",o:["Agar bisa bermain bola","Agar tidak basah","Agar hujan turun","Agar payung rusak"],a:1,e:"Teks menyebutkan Siti membawa payung agar tidak basah."}
+];
+const start=document.getElementById('start'), exam=document.getElementById('exam'), result=document.getElementById('result'), review=document.getElementById('review');
+let answers=Array(questions.length).fill(null), current=0, studentName='';
+const subjects=["IPAS","Matematika","Bahasa Indonesia"];
+const $=id=>document.getElementById(id);
+function show(section){[start,exam,result,review].forEach(s=>s.classList.add('hidden'));section.classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});}
+function render(){
+ const item=questions[current]; $('subjectTag').textContent=item.subject;
+ $('count').textContent=`Soal ${current+1} dari ${questions.length}`;
+ $('progressBar').style.width=`${(current+1)/questions.length*100}%`;
+ $('question').textContent=item.q;
+ $('options').innerHTML='';
+ item.o.forEach((option,i)=>{
+   const label=document.createElement('label');label.className='option';
+   const radio=document.createElement('input');radio.type='radio';radio.name='answer';radio.value=i;radio.checked=answers[current]===i;
+   radio.addEventListener('change',()=>{answers[current]=i;renderNumbers();});
+   const span=document.createElement('span');span.textContent=String.fromCharCode(65+i)+'. '+option;
+   label.append(radio,span);$('options').appendChild(label);
+ });
+ $('prevBtn').disabled=current===0;$('nextBtn').disabled=current===questions.length-1;
+ renderNumbers();
+}
+function renderNumbers(){
+ $('numbers').innerHTML='';
+ questions.forEach((q,i)=>{const b=document.createElement('button');b.className='num'+(answers[i]!==null?' done':'')+(i===current?' current':'');b.textContent=i+1;b.setAttribute('aria-label','Soal '+(i+1));b.addEventListener('click',()=>{current=i;render();});$('numbers').appendChild(b);});
+}
+function finish(){
+ const unanswered=answers.filter(a=>a===null).length;
+ const message=unanswered?`Masih ada ${unanswered} soal yang belum dijawab. Tetap selesaikan ujian?`:'Yakin ingin mengumpulkan jawaban?';
+ if(confirm(message)){calculate();show(result);}
+}
+function calculate(){
+ const scores=subjects.map(subject=>{const ids=questions.map((q,i)=>q.subject===subject?i:-1).filter(i=>i>=0);const correct=ids.filter(i=>answers[i]===questions[i].a).length;return {subject,correct,total:ids.length,score:Math.round(correct/ids.length*100)};});
+ const correct=questions.filter((q,i)=>answers[i]===q.a).length;const total=Math.round(correct/questions.length*100);
+ $('greeting').textContent=`Peserta: ${studentName} • Jawaban benar ${correct} dari ${questions.length}.`;
+ $('scorecards').innerHTML=scores.map(s=>`<div class="score"><b>${s.subject}</b><strong>${s.score}</strong><span class="muted">${s.correct}/${s.total} benar</span></div>`).join('');
+ $('totalScore').textContent=total;
+ $('summaryText').textContent=total>=90?'Hebat sekali! Pertahankan semangat belajarmu.':total>=75?'Bagus! Periksa pembahasan untuk belajar lebih baik.':total>=60?'Terus berlatih, kamu pasti bisa meningkat.':'Jangan menyerah. Pelajari pembahasan dan coba lagi.';
+ $('reviewContent').innerHTML='';
+ subjects.forEach(subject=>{
+   const heading=document.createElement('h3');heading.textContent=subject;$('reviewContent').appendChild(heading);
+   questions.forEach((q,i)=>{if(q.subject!==subject)return;
+     const box=document.createElement('div');box.className='review';
+     const status=answers[i]===q.a?'Benar':'Belum tepat';
+     box.innerHTML=`<p><b>${i+1}. ${escapeHTML(q.q)}</b></p><p class="${answers[i]===q.a?'correct':'incorrect'}">${status}.</p><p>Jawabanmu: ${answers[i]===null?'Belum dijawab':String.fromCharCode(65+answers[i])+'. '+escapeHTML(q.o[answers[i]])}</p><p>Jawaban benar: <b>${String.fromCharCode(65+q.a)}. ${escapeHTML(q.o[q.a])}</b></p><p class="muted">Pembahasan: ${escapeHTML(q.e)}</p>`;
+     $('reviewContent').appendChild(box);
+   });
+ });
+}
+function escapeHTML(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+$('startBtn').addEventListener('click',()=>{studentName=$('student').value.trim();if(!studentName){alert('Silakan isi nama peserta terlebih dahulu.');$('student').focus();return;}show(exam);render();});
+$('prevBtn').addEventListener('click',()=>{if(current>0){current--;render();}});
+$('nextBtn').addEventListener('click',()=>{if(current<questions.length-1){current++;render();}});
+$('finishBtn').addEventListener('click',finish);
+$('reviewBtn').addEventListener('click',()=>show(review));
+$('backResultBtn').addEventListener('click',()=>show(result));
+$('retryBtn').addEventListener('click',()=>{if(confirm('Ulangi ujian dari awal? Jawaban sebelumnya akan dihapus.')){answers=Array(questions.length).fill(null);current=0;show(start);}});
+</script>
+</body>
+</html>
